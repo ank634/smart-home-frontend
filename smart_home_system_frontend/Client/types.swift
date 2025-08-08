@@ -8,8 +8,6 @@
 enum MdnsServiceType: String{
     case http = "_http._tcp"
     case mqtt = "_mqtt._tcp"
-    // dummy service remove
-    case light = "light"
 }
 
 enum DeviceType: String{

@@ -49,11 +49,19 @@ class Scanner{
     
     // using escaping means that the function passed in will live beyond the scope it was declared in
     init(scanningStrategy: ScannerStrategy, updateHandler: @escaping (_ results: Set<Device>, _ changes: Set<Device>) -> Void) {
-        self.scanner = NWBrowser(for: .bonjourWithTXTRecord(type: scanningStrategy.serviceType.rawValue, domain: ".local"), using: .tcp)
+        self.scanner = NWBrowser(for: .bonjourWithTXTRecord(type: scanningStrategy.serviceType.rawValue, domain: "local"), using: .tcp)
         self.scanningStrategy = scanningStrategy
         self.state = .setup
         self.browseResults = []
         self.updateHandler = updateHandler
+        scanner.browseResultsChangedHandler = updateResults(_:_:)
+    }
+    
+    init(scanningStrategy: ScannerStrategy) {
+        self.scanner = NWBrowser(for: .bonjourWithTXTRecord(type: scanningStrategy.serviceType.rawValue, domain: "local"), using: .tcp)
+        self.scanningStrategy = scanningStrategy
+        self.state = .setup
+        self.browseResults = []
         scanner.browseResultsChangedHandler = updateResults(_:_:)
     }
     
