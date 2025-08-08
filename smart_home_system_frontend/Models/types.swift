@@ -16,4 +16,8 @@ enum DeviceType: String{
     case light = "light"
 }
 
+enum DeviceManufactor: String{
+    case custom = "custom"
+    case esphome = "esphome"
+}
 

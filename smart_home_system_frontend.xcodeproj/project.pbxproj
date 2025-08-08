@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C2A99F092DF94CD900B07ACD /* CocoaMQTT in Frameworks */ = {isa = PBXBuildFile; productRef = C2A99F082DF94CD900B07ACD /* CocoaMQTT */; };
+		C2A99F0B2DF94CD900B07ACD /* CocoaMQTTWebSocket in Frameworks */ = {isa = PBXBuildFile; productRef = C2A99F0A2DF94CD900B07ACD /* CocoaMQTTWebSocket */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		C283832E2DF2145400AA23E6 /* smart_home_system_frontend.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = smart_home_system_frontend.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +28,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2A99F0B2DF94CD900B07ACD /* CocoaMQTTWebSocket in Frameworks */,
+				C2A99F092DF94CD900B07ACD /* CocoaMQTT in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +72,8 @@
 			);
 			name = smart_home_system_frontend;
 			packageProductDependencies = (
+				C2A99F082DF94CD900B07ACD /* CocoaMQTT */,
+				C2A99F0A2DF94CD900B07ACD /* CocoaMQTTWebSocket */,
 			);
 			productName = smart_home_system_frontend;
 			productReference = C283832E2DF2145400AA23E6 /* smart_home_system_frontend.app */;
@@ -94,6 +103,9 @@
 			);
 			mainGroup = C28383252DF2145400AA23E6;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C2A99F072DF94CD900B07ACD /* XCRemoteSwiftPackageReference "CocoaMQTT" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C283832F2DF2145400AA23E6 /* Products */;
 			projectDirPath = "";
@@ -255,6 +267,9 @@
 				DEVELOPMENT_TEAM = F2BBC2YKQM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "smart-home-system-frontend-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This uses mdns";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -284,6 +299,9 @@
 				DEVELOPMENT_TEAM = F2BBC2YKQM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "smart-home-system-frontend-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This uses mdns";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -324,6 +342,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C2A99F072DF94CD900B07ACD /* XCRemoteSwiftPackageReference "CocoaMQTT" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ank634/CocoaMQTT";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C2A99F082DF94CD900B07ACD /* CocoaMQTT */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C2A99F072DF94CD900B07ACD /* XCRemoteSwiftPackageReference "CocoaMQTT" */;
+			productName = CocoaMQTT;
+		};
+		C2A99F0A2DF94CD900B07ACD /* CocoaMQTTWebSocket */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C2A99F072DF94CD900B07ACD /* XCRemoteSwiftPackageReference "CocoaMQTT" */;
+			productName = CocoaMQTTWebSocket;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C28383262DF2145400AA23E6 /* Project object */;
 }
