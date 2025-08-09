@@ -35,6 +35,11 @@ class BetterHome{
     }
 }
 
-enum Device: Hashable {
+enum Device: Hashable, Identifiable, Observable {
     case light(light: LightDto)
+    case lightDevice(light: Light)
+    
+    var id: Self{
+        self
+    }
 }

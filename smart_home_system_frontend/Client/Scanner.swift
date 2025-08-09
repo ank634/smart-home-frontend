@@ -7,32 +7,36 @@
 
 import Foundation
 import Network
+import CocoaMQTT
 
 protocol ScannerStrategy{
     var serviceType: MdnsServiceType{get}
-    func parseDevice(txtRecords:[String : String], name: String)  -> Device
+    func parseDevice(txtRecords:[String : String], name: String)  -> Device?
 }
 
+// MARK: Consider having just a strategy for the manufactor and in that method having helper methods that parse the devices
 class CustomLightScanner: ScannerStrategy{
-    
     var serviceType: MdnsServiceType
-    init(serviceType: MdnsServiceType) {
+    var mqttClient: CocoaMQTT5
+    
+    init(serviceType: MdnsServiceType, mqttClient: CocoaMQTT5) {
         self.serviceType = serviceType
+        self.mqttClient = mqttClient
     }
     
-    func parseDevice(txtRecords: [String : String], name: String) -> Device {
+    /* MARK: this assumes that each service is some sort of device. I need to make some custom errors because things here
+     * MARK: could go wrong if someone broadcast something while we are searching
+    */
+    func parseDevice(txtRecords: [String : String], name: String) -> Device? {
         if let _ = txtRecords["light"]{
-            return Device.light(light: LightDto(deviceID: name, deviceName: name, deviceType: DeviceType.light.rawValue,
-                                                serviceType: serviceType.rawValue, manufactor: DeviceManufactor.custom.rawValue,
-                                                setTopic: "set" + name, getTopic: "get" + name, endPoint: name + ".local",
-                                                isDimmable: txtRecords["isdimmable"]!.lowercased() == "true", isRgb: txtRecords["isrgb"]!.lowercased() == "true"))
+            return Device.lightDevice(light: Light(mqttClient: mqttClient, lightDto: LightDto(deviceID: name, deviceName: name, deviceType: DeviceType.light.rawValue,
+                                                   serviceType: serviceType.rawValue, manufactor: DeviceManufactor.custom.rawValue,
+                                                   setTopic: "set" + name, getTopic: "get" + name, endPoint: name + ".local",
+                                                   isDimmable: txtRecords["isdimmable"]!.lowercased() == "true", isRgb: txtRecords["isrgb"]!.lowercased() == "true")))
         }
         
         // TODO: remove this once we get more devices added
-        return Device.light(light: LightDto(deviceID: name, deviceName: name, deviceType: DeviceType.light.rawValue,
-                                            serviceType: serviceType.rawValue, manufactor: DeviceManufactor.custom.rawValue,
-                                            setTopic: "set" + name, getTopic: "get" + name, endPoint: name + ".local",
-                                            isDimmable: txtRecords["isdimmable"]!.lowercased() == "true", isRgb: txtRecords["isrgb"]!.lowercased() == "true"))
+        return nil
         
         
     }
@@ -76,12 +80,14 @@ class Scanner{
         let adaptedchanges: Set<Device> = Set<Device>()
         
         for item in results{
-            if case let NWEndpoint.service(name, _, _, _) = item.endpoint{
-                if case let NWBrowser.Result.Metadata.bonjour(txtRecord) = item.metadata{
-                    let discoveredDevice = scanningStrategy.parseDevice(txtRecords: txtRecord.dictionary, name: name)
-                    adaptedResults.insert(discoveredDevice)
-                }
+            guard case let NWEndpoint.service(name, _, _, _) = item.endpoint,
+                  case let NWBrowser.Result.Metadata.bonjour(txtRecord) = item.metadata,
+                  let discoveredDevice = scanningStrategy.parseDevice(txtRecords: txtRecord.dictionary, name: name)
+            else{
+                continue
             }
+            
+            adaptedResults.insert(discoveredDevice)
         }
         browseResults = Array(adaptedResults)
         

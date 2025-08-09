@@ -22,7 +22,7 @@ struct LightDto: Codable, Hashable{
     var isRgb: Bool
 }
 
-class IotDevice: Identifiable{
+class IotDevice: Identifiable, Equatable, Hashable{
     var mqttClient: CocoaMQTT5
     var id: String
     var name: String
@@ -53,14 +53,22 @@ class IotDevice: Identifiable{
     deinit{
         mqttClient.unsubscribe(self.getTopic)
     }
+    
+    static func == (lhs: IotDevice, rhs: IotDevice) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher){
+        hasher.combine(id)
+    }
 }
 
-class Light: IotDevice{
+class Light: IotDevice, ObservableObject{
 
     var isDimmable: Bool
     var isRgb: Bool
-    var isOn: Bool?
-    var brightness: Int?
+    @Published var isOn: Bool?
+    @Published var brightness: Int?
     
     init(mqttClient: CocoaMQTT5, lightDto: LightDto) {
         isDimmable = lightDto.isDimmable
