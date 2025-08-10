@@ -20,6 +20,21 @@ struct LightDto: Codable, Hashable{
     var roomID:      Int?
     var isDimmable: Bool
     var isRgb: Bool
+    
+    // 
+    enum CodingKeys: String, CodingKey {
+        case deviceID = "DeviceID"
+        case deviceName = "DeviceName"
+        case deviceType = "DeviceType"
+        case serviceType = "ServiceType"
+        case manufactor = "Manufactor"
+        case setTopic = "SetTopic"
+        case getTopic = "GetTopic"
+        case endPoint = "EndPoint"
+        case roomID = "RoomID"
+        case isDimmable = "IsDimmable"
+        case isRgb = "IsRgb"
+    }
 }
 
 class IotDevice: Identifiable, Equatable, Hashable{
@@ -81,6 +96,7 @@ class Light: IotDevice, ObservableObject{
         super.init(mqttClient: mqttClient, id: lightDto.deviceID, name: lightDto.deviceName, deviceType: lightDto.deviceType, serviceType: lightDto.serviceType, manufactor: lightDto.manufactor, setTopic: lightDto.setTopic, getTopic: lightDto.getTopic, roomID: lightDto.roomID)
     }
     
+  
     deinit{
         mqttClient.unsubscribe(self.getTopic)
     }

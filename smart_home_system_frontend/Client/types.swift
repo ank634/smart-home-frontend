@@ -10,7 +10,7 @@ enum MdnsServiceType: String{
     case mqtt = "_mqtt._tcp"
 }
 
-enum DeviceType: String{
+enum DeviceType: String, Codable{
     case light = "light"
 }
 
