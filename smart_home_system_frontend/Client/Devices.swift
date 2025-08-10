@@ -63,8 +63,10 @@ class IotDevice: Identifiable, Equatable, Hashable{
     }
 }
 
-class Light: IotDevice, ObservableObject{
 
+class Light: IotDevice, ObservableObject{
+    
+    var lightDto: LightDto
     var isDimmable: Bool
     var isRgb: Bool
     @Published var isOn: Bool?
@@ -75,6 +77,7 @@ class Light: IotDevice, ObservableObject{
         isRgb = lightDto.isRgb
         isOn = nil
         brightness = nil
+        self.lightDto = lightDto
         super.init(mqttClient: mqttClient, id: lightDto.deviceID, name: lightDto.deviceName, deviceType: lightDto.deviceType, serviceType: lightDto.serviceType, manufactor: lightDto.manufactor, setTopic: lightDto.setTopic, getTopic: lightDto.getTopic, roomID: lightDto.roomID)
     }
     

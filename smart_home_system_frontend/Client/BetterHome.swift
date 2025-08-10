@@ -25,7 +25,7 @@ class BetterHome{
     
     
     func DeleteDevice(deviceId: String){
-        
+        let URL = ""
     }
     
     
@@ -36,8 +36,7 @@ class BetterHome{
 }
 
 enum Device: Hashable, Identifiable, Observable {
-    case light(light: LightDto)
-    case lightDevice(light: Light)
+    case light(light: Light)
     
     var id: Self{
         self
