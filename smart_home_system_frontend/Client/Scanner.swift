@@ -24,21 +24,18 @@ class CustomLightScanner: ScannerStrategy{
         self.mqttClient = mqttClient
     }
     
-    /* MARK: this assumes that each service is some sort of device. I need to make some custom errors because things here
-     * MARK: could go wrong if someone broadcast something while we are searching
-    */
     func parseDevice(txtRecords: [String : String], name: String) -> Device? {
-        if let _ = txtRecords["light"]{
-            return Device.lightDevice(light: Light(mqttClient: mqttClient, lightDto: LightDto(deviceID: name, deviceName: name, deviceType: DeviceType.light.rawValue,
+        guard let type = txtRecords["type"] else{
+            return nil
+        }
+        
+        if type.lowercased() == "light"{
+            return Device.light(light: Light(mqttClient: mqttClient, lightDto: LightDto(deviceID: name, deviceName: name, deviceType: DeviceType.light.rawValue,
                                                    serviceType: serviceType.rawValue, manufactor: DeviceManufactor.custom.rawValue,
                                                    setTopic: "set" + name, getTopic: "get" + name, endPoint: name + ".local",
                                                    isDimmable: txtRecords["isdimmable"]!.lowercased() == "true", isRgb: txtRecords["isrgb"]!.lowercased() == "true")))
         }
-        
-        // TODO: remove this once we get more devices added
         return nil
-        
-        
     }
 }
 
