@@ -6,9 +6,15 @@
 //
 
 import SwiftUI
+import CocoaMQTT
 
 @main
 struct smart_home_system_frontendApp: App {
+    init() {
+        MqttManager.shared.subscribe(topic: "gigity")
+        //MqttManager.shared.publish(topic: "gigity", data: "hi guhys")
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
