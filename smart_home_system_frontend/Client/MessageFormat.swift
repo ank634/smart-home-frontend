@@ -26,3 +26,10 @@ struct MqttLightMessageFormat: Codable{
         self.b = max(0, min(255, b))
     }
 }
+
+struct MqttConnectionStatusFormat: Codable{
+    var isConnected: Bool
+    init(isConnected: Bool) {
+        self.isConnected = isConnected
+    }
+}
