@@ -9,20 +9,21 @@ import SwiftUI
 import CocoaMQTT
 
 struct ContentView: View {
-    @StateObject var test = testSub()
+    @StateObject var test1 = testSub(topic: "gigity")
+    @StateObject var test2 = testSub(topic: "wigity")
     var body: some View{
         
         TabView{
             Tab("Home", systemImage: "house.fill"){
-                Text(test.x)
+                Text(test1.x)
             }
             
             Tab("Add Device", systemImage: "plus.circle"){
-               
+                Text(test2.x)
             }
             
             Tab("Favorites", systemImage: "heart.fill"){
-                
+                FavoritesView()
             }
         }
     }
@@ -32,11 +33,11 @@ struct ContentView: View {
     ContentView()
 }
 
-class testSub: Subscriber, ObservableObject{
+class testSub: MqttSubscriber, ObservableObject{
     @Published var x: String = ""
-    init() {
-        MqttManager.shared.subscribe(topic: "gigity")
-        MqttManager.shared.attach(topic: "gigity", subscriber: self)
+    init(topic: String) {
+        MqttManager.shared.subscribe(topic: topic)
+        MqttManager.shared.attach(topic: topic, subscriber: self)
     }
     func update(data: String) {
         DispatchQueue.main.async {
