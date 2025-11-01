@@ -37,88 +37,54 @@ struct LightDto: Codable, Hashable{
     }
 }
 
-class IotDevice: Identifiable, Equatable, Hashable{
-    var mqttClient: CocoaMQTT5
-    var id: String
-    var name: String
+struct IotDevice: Hashable, Codable{
+    var deviceID: String
+    var deviceName: String
     var deviceType:  String
     var serviceType: String
     var manufactor:  String
     var setTopic:    String
     var getTopic:    String
+    var endPoint:    String
     var roomID:      Int?
     
+    enum CodingKeys: String, CodingKey {
+        case deviceID = "DeviceID"
+        case deviceName = "DeviceName"
+        case deviceType = "DeviceType"
+        case serviceType = "ServiceType"
+        case manufactor = "Manufactor"
+        case setTopic = "SetTopic"
+        case getTopic = "GetTopic"
+        case endPoint = "EndPoint"
+        case roomID = "RoomID"
+    }
+}
 
-    init(mqttClient: CocoaMQTT5, id: String, name: String,
-         deviceType: String, serviceType: String, manufactor: String,
-         setTopic: String, getTopic: String, roomID: Int? = nil) {
-        self.mqttClient = mqttClient
-        self.id = id
-        self.name = name
-        self.deviceType = deviceType
-        self.serviceType = serviceType
-        self.manufactor = manufactor
-        self.setTopic = setTopic
-        self.getTopic = getTopic
-        self.roomID = roomID
+
+enum DeviceDto: Codable{
+    case lightDto(lightDto: LightDto)
+    
+    enum CodingKeys: String, CodingKey{
+        case deviceType = "DeviceType"
+    }
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(DeviceType.self, forKey: CodingKeys.deviceType)
         
-        mqttClient.subscribe(self.getTopic)
+        switch type{
+        case .light:
+            self = .lightDto(lightDto: try LightDto(from: decoder))
+        }
     }
     
-    deinit{
-        mqttClient.unsubscribe(self.getTopic)
-    }
-    
-    static func == (lhs: IotDevice, rhs: IotDevice) -> Bool {
-        return lhs.id == rhs.id
-    }
-    
-    func hash(into hasher: inout Hasher){
-        hasher.combine(id)
+    func encode(to encoder: any Encoder) throws {
+        switch self {
+        case .lightDto(let lightDto):
+            try lightDto.encode(to: encoder)
+        }
     }
 }
-
-
-class Light: IotDevice, ObservableObject{
-    
-    var lightDto: LightDto
-    var isDimmable: Bool
-    var isRgb: Bool
-    @Published var isOn: Bool?
-    @Published var brightness: Int?
-    
-    init(mqttClient: CocoaMQTT5, lightDto: LightDto) {
-        isDimmable = lightDto.isDimmable
-        isRgb = lightDto.isRgb
-        isOn = nil
-        brightness = nil
-        self.lightDto = lightDto
-        super.init(mqttClient: mqttClient, id: lightDto.deviceID, name: lightDto.deviceName, deviceType: lightDto.deviceType, serviceType: lightDto.serviceType, manufactor: lightDto.manufactor, setTopic: lightDto.setTopic, getTopic: lightDto.getTopic, roomID: lightDto.roomID)
-    }
-    
-  
-    deinit{
-        mqttClient.unsubscribe(self.getTopic)
-    }
-    
-    func turnOn(){
-        self.isOn = true
-        //
-    }
-    
-    func turnOff(){
-        self.isOn = false
-    }
-    
-    func toggle(){
-        self.isOn = !self.isOn!
-    }
-    
-    func setBrightness(brightness: Int){
-        self.brightness = brightness
-    }
-}
-
-
 
 

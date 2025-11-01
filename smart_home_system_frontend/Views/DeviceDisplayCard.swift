@@ -36,9 +36,9 @@ struct DeviceDisplayCard: View {
                 HStack {
                     Spacer()
                     Circle()
-                        .fill(vm.viewModelStrategy.deviceConnectionStatusObserver.isConnected == false
-                              ? Color.red.opacity(0.6)
-                              : Color.green.opacity(0.6))
+                        .fill(vm.viewModelStrategy.deviceConnectionStatusObserver.isConnected
+                              ? Color.green.opacity(0.6)
+                              : Color.red.opacity(0.6))
                         .frame(width: 10, height: 10)
                     
                     
@@ -52,7 +52,7 @@ struct DeviceDisplayCard: View {
                 Image(systemName: vm.viewModelStrategy.image)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: width * 0.4, height: height * 0.25)
+                    .frame(width: width * 0.55, height: height * 0.25)
                     .foregroundStyle(vm.viewModelStrategy.imageColor)
                     .padding(.vertical, 6)
                 
@@ -93,6 +93,7 @@ protocol DeviceDisplayViewModelStrategy: MqttSubscriber{
     var deviceName: String {get}
     var state: String {get set}
     var topic: String {get}
+    var device: IotDevice {get set}
     var stateStringColor: Color {get set}
     var deviceConnectionStatusObserver: DeviceConnectionStatusEventListener {get set}
 }
@@ -105,9 +106,16 @@ protocol DeviceDisplayViewModelStrategy: MqttSubscriber{
     var state: String
     var imageColor: Color
     var stateStringColor: Color
-    var deviceConnectionStatusObserver: DeviceConnectionStatusEventListener
+    var connectionStatus: Bool
+    var device: IotDevice
+    var deviceConnectionStatusObserver: DeviceConnectionStatusEventListener{
+        didSet{
+            self.connectionStatus = deviceConnectionStatusObserver.isConnected
+        }
+    }
     
-    init(topic: String, room: String, deviceName: String) {
+    
+    init(topic: String, room: String, deviceName: String, device: IotDevice) {
         self.topic = topic
         self.image = "light.max"
         self.state = ""
@@ -116,16 +124,20 @@ protocol DeviceDisplayViewModelStrategy: MqttSubscriber{
         self.imageColor = .yellow
         self.stateStringColor = .blue
         self.deviceConnectionStatusObserver = DeviceConnectionStatusEventListener()
+        self.connectionStatus = false
+        self.device = device
         // MARK: this may have to be moved to the onappear of the view
         MqttManager.shared.subscribe(topic: topic)
         MqttManager.shared.attach(topic: topic, subscriber: self)
-        MqttManager.shared.subscribe(topic: "connectionstatus/\(topic)")
-        MqttManager.shared.attach(topic: "connectionstatus/\(topic)", subscriber: deviceConnectionStatusObserver)
+        MqttManager.shared.subscribe(topic: "connectionstatus/\(device.deviceID)")
+        MqttManager.shared.attach(topic: "connectionstatus/\(device.deviceID)", subscriber: deviceConnectionStatusObserver)
     }
     
     
+    // MARK: think about this I'm thinking maybe pull this out to its own listener and then based on the state write some ternary operators in the view
     func update(data: String) {
         do{
+            print(data)
             let light = try JSONDecoder().decode(MqttLightMessageFormat.self, from: data.data(using: .utf8)!)
             if light.isOn{
                 DispatchQueue.main.async {
@@ -159,6 +171,7 @@ protocol DeviceDisplayViewModelStrategy: MqttSubscriber{
         isConnected = false
     }
     
+    
     func update(data: String) {
         do{
             let connectionStatus = try JSONDecoder().decode(MqttConnectionStatusFormat.self, from: data.data(using: .utf8)!)
@@ -173,6 +186,7 @@ protocol DeviceDisplayViewModelStrategy: MqttSubscriber{
     }
 }
 
+
+
 #Preview {
-    var strat = LightDisplayViewModelStrategy(topic: "light", room: "my room", deviceName: "living room light")
 }

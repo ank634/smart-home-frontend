@@ -1,19 +1,14 @@
 //
-//  FavoritesView.swift
+//  DevicesViewModel.swift
 //  smart_home_system_frontend
 //
-//  Created by Emmanuel Bastidas on 10/23/25.
+//  Created by Emmanuel Bastidas on 10/30/25.
 //
 
 import SwiftUI
-enum ScreenState{
-    case loading
-    case loadedSuccefully
-    case errorLoading
-}
 
-struct FavoritesView: View {
-    var vm = FavoriteViewModel()
+struct DevicesView: View {
+    var vm = DevicesViewModel()
     let columns = [
         GridItem(.flexible()),
         GridItem(.flexible())
@@ -42,7 +37,7 @@ struct FavoritesView: View {
                                 NavigationLink(destination: DeviceDetailView(device: strategy.device)){
                                     DeviceDisplayCard(vmStrategy: strategy, width: .infinity, height: 100.0)
                                 }
-                                .padding()
+                                .padding(20)
                                 .buttonStyle(.plain)
                             }
                         }
@@ -58,11 +53,11 @@ struct FavoritesView: View {
         }
         .task {
             do{
-                try await vm.GetFavorites()
+                try await vm.GetDevices()
                 vm.screenState = .loadedSuccefully
                 vm.deviceViewModels = []
-                for favorite in vm.favorites {
-                    if favorite.serviceType == "light"{
+                for favorite in vm.devices {
+                    if favorite.deviceType == "light"{
                         var strat = LightDisplayViewModelStrategy(topic: favorite.getTopic,
                                                                   room: "place holder",
                                                                   deviceName: favorite.deviceName,
@@ -82,13 +77,4 @@ struct FavoritesView: View {
             
         }
     }
-}
-
-struct testView: View {
-    var body: some View {
-        Text("one level deeper")
-    }
-}
-#Preview {
-    //FavoritesView()
 }

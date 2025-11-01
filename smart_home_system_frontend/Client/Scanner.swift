@@ -11,29 +11,27 @@ import CocoaMQTT
 
 protocol ScannerStrategy{
     var serviceType: MdnsServiceType{get}
-    func parseDevice(txtRecords:[String : String], name: String)  -> Device?
+    func parseDevice(txtRecords:[String : String], name: String)  -> IotDevice?
 }
 
 // MARK: Consider having just a strategy for the manufactor and in that method having helper methods that parse the devices
 class CustomLightScanner: ScannerStrategy{
     var serviceType: MdnsServiceType
-    var mqttClient: CocoaMQTT5
     
-    init(serviceType: MdnsServiceType, mqttClient: CocoaMQTT5) {
+    init(serviceType: MdnsServiceType) {
         self.serviceType = serviceType
-        self.mqttClient = mqttClient
     }
     
-    func parseDevice(txtRecords: [String : String], name: String) -> Device? {
+    func parseDevice(txtRecords: [String : String], name: String) -> IotDevice? {
         guard let type = txtRecords["type"] else{
             return nil
         }
         
+        // TODO: fix me
         if type.lowercased() == "light"{
-            return Device.light(light: Light(mqttClient: mqttClient, lightDto: LightDto(deviceID: name, deviceName: name, deviceType: DeviceType.light.rawValue,
+            return IotDevice(deviceID: name, deviceName: name, deviceType: DeviceType.light.rawValue,
                                                    serviceType: serviceType.rawValue, manufactor: DeviceManufactor.custom.rawValue,
-                                                   setTopic: "set" + name, getTopic: "get" + name, endPoint: name + ".local",
-                                                   isDimmable: txtRecords["isdimmable"]!.lowercased() == "true", isRgb: txtRecords["isrgb"]!.lowercased() == "true")))
+                                                   setTopic: "set" + name, getTopic: "get" + name, endPoint: name + ".local")
         }
         return nil
     }
@@ -43,13 +41,13 @@ class CustomLightScanner: ScannerStrategy{
 class Scanner{
     var scanner: NWBrowser
     var scanningStrategy: ScannerStrategy
-    var updateHandler: (_ results: Set<Device>, _ changes: Set<Device>) -> Void = {x,y in}
+    var updateHandler: (_ results: Set<IotDevice>, _ changes: Set<IotDevice>) -> Void = {x,y in}
     var scannerStateUpdateHandler : (NWBrowser.State) -> Void = {x in}
     var state: NWBrowser.State
-    private var browseResults: [Device]
+    private var browseResults: [IotDevice]
     
     // using escaping means that the function passed in will live beyond the scope it was declared in
-    init(scanningStrategy: ScannerStrategy, updateHandler: @escaping (_ results: Set<Device>, _ changes: Set<Device>) -> Void) {
+    init(scanningStrategy: ScannerStrategy, updateHandler: @escaping (_ results: Set<IotDevice>, _ changes: Set<IotDevice>) -> Void) {
         self.scanner = NWBrowser(for: .bonjourWithTXTRecord(type: scanningStrategy.serviceType.rawValue, domain: "local"), using: .tcp)
         self.scanningStrategy = scanningStrategy
         self.state = .setup
@@ -68,13 +66,13 @@ class Scanner{
     
     public func start(){ scanner.start(queue: DispatchQueue.main) }
 
-    public var results:[Device] {return browseResults}
+    public var results:[IotDevice] {return browseResults}
     
     public func cancel(){ scanner.cancel() }
     
     private func updateResults(_ results: Set<NWBrowser.Result>, _ changes: Set<NWBrowser.Result.Change>){
-        var adaptedResults: Set<Device> = Set<Device>()
-        let adaptedchanges: Set<Device> = Set<Device>()
+        var adaptedResults: Set<IotDevice> = Set<IotDevice>()
+        let adaptedchanges: Set<IotDevice> = Set<IotDevice>()
         
         for item in results{
             guard case let NWEndpoint.service(name, _, _, _) = item.endpoint,
@@ -96,3 +94,4 @@ class Scanner{
     deinit { scanner.cancel() }
     
 }
+

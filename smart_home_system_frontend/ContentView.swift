@@ -15,11 +15,11 @@ struct ContentView: View {
         
         TabView{
             Tab("Home", systemImage: "house.fill"){
-                Text(test1.x)
+                DevicesView()
             }
             
             Tab("Add Device", systemImage: "plus.circle"){
-                Text(test2.x)
+                DeviceDiscoveryView()
             }
             
             Tab("Favorites", systemImage: "heart.fill"){

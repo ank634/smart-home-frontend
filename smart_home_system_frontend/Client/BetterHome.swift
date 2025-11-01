@@ -104,8 +104,8 @@ class BetterHome{
     
     
     
-    func GetDevices() async throws -> [Device]{
-        var fetchedDevices: [Device] = []
+    func GetDevices() async throws -> [DeviceDto]{
+        var fetchedDevices: [DeviceDto] = []
         guard let url = URL(string: "http://localhost:8080/iot-devices") else{
             throw URLError(.badURL)
         }
@@ -124,11 +124,32 @@ class BetterHome{
         for resultDto in results{
             switch resultDto{
                 case .lightDto(let lightDto):
-                fetchedDevices.append(.light(light: Light(mqttClient: mqttClient, lightDto: lightDto)))
+                print("")
+                //fetchedDevices.append(.light(light: Light(mqttClient: mqttClient, lightDto: lightDto)))
                 default:
                     print("Not implemented all switch cases")
             }
         }
+        return fetchedDevices
+    }
+    
+    func GetFavorites() async throws -> [DeviceDto]{
+        var fetchedDevices: [DeviceDto] = []
+        guard let url = URL(string: "http://localhost:8080/favorites") else{
+            throw URLError(.badURL)
+        }
+        
+        let (data, response) = try await URLSession.shared.data(from: url)
+        guard let httpResponse = response as? HTTPURLResponse else{
+            throw URLError(.badServerResponse)
+        }
+        
+        if httpResponse.statusCode == 500{
+            throw URLError(.badServerResponse)
+        }
+        
+        let results = try JSONDecoder().decode([DeviceDto].self, from: data)
+        
         return fetchedDevices
     }
 }
